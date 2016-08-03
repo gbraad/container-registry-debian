@@ -1,0 +1,22 @@
+image: docker:git
+services:
+- docker:dind
+
+before_script:
+  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+  - git clone https://github.com/tianon/docker-brew-debian.git brew --depth 1 -b dist-stable
+
+clone_jessie:
+  script:
+    - docker pull debian:jessie
+    - docker tag debian:jessie registry.gitlab.com/gbraad/debian:jessie
+    - docker push registry.gitlab.com/gbraad/debian:jessie
+  only:
+    - master
+
+build_jessie:
+  script:
+    - docker build -t registry.gitlab.com/gbraad/debian:bjessie ./brew/jessie/ 
+    - docker push registry.gitlab.com/gbraad/debian:bjessie
+  only:
+    - master
